@@ -65,11 +65,30 @@ if(isset($_POST['add_to_cart'])){
 
    <div class="box-container">
    <?php
+   require "./algorithm/mergeSort.php";
+   require "./algorithm/binarySearch.php";
+
       if(isset($_POST['submit'])){
          $search_item = $_POST['search'];
-         $select_products = mysqli_query($conn, "SELECT * FROM `products` WHERE name LIKE '%{$search_item}%'") or die('query failed');
-         if(mysqli_num_rows($select_products) > 0){
-         while($fetch_product = mysqli_fetch_assoc($select_products)){
+         // $select_products = mysqli_query($conn, "SELECT * FROM `products` WHERE name LIKE '%{$search_item}%'") or die('query failed');
+           $result = mysqli_query($conn, "SELECT * FROM `products`") or die('query failed');
+           
+           if(mysqli_num_rows($result) > 0){
+            $select_products=$result->fetch_all(MYSQLI_ASSOC);
+
+            //merge sorting
+            $sorted_data=mergeSort($select_products);
+
+            //binary search
+            $searched_item=binarySearch($sorted_data,$search_item);
+
+
+            $fetch_product;
+
+            if($searched_item>=0){
+            $fetch_product = $sorted_data[$searched_item];
+         
+         
    ?>
    <form action="" method="post" class="box">
       <img src="uploaded_img/<?php echo $fetch_product['image']; ?>" alt="" class="image">
@@ -82,7 +101,7 @@ if(isset($_POST['add_to_cart'])){
       <input type="submit" class="btn" value="add to cart" name="add_to_cart">
    </form>
    <?php
-            }
+            }  
          }else{
             echo '<p class="empty">no result found!</p>';
          }
